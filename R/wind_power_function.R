@@ -13,16 +13,16 @@ wind_power <- function(rho, r, v){
   
   # error checking:
   # wind speed must be greater than zero
-  ifelse(v < 0, stop("Wind speed must be greater than zero"), v)
+  ifelse(v < 0, stop("Wind speed cannot be negative"), v)
   
   # air density must be greater than zero
-  ifelse(rho < 0, stop("Air density must be greater than zero"), rho)
+  ifelse(rho < 0, stop("Air density cannot be negative"), rho)
   
   # if air density is greater than 2, issue a warning
   ifelse(rho > 2, warning("Air density is unrealistically high"), rho)
   
   # area must be greater than zero
-  ifelse(r < 0, stop("Blade length must be greater than zero"), r)
+  ifelse(r < 0, stop("Blade length cannot be negative"), r)
   
   # define the power equation using the formula p = 0.5 * rho * A * v^3
   # note: A = pi * r^2
