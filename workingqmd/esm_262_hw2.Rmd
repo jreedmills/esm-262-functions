@@ -1,0 +1,126 @@
+---
+title: "ESM 262 HW 2"
+author: "Jackson Mills"
+date: "2025-02-20"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Introduction
+
+This function will calculate total available wind power for a wind turbine based on air density, blade length, and wind speed. The formula used for this calculation is: 
+
+p = 0.5 * rho * A * v^3 , where:
+
+p = power (W),
+rho = air density (kg/m^3),
+A = swept area (m^2),
+v = wind speed (m/s),
+
+We will calculate swept area (A) from the blade length (r) using the formula for area of a circle: 
+
+A = pi * r^2. 
+
+Since this formula gives power in watts, we will divide by 10^6 to convert to megawatts. The function will also check for errors in the inputs and issue warnings if necessary.
+
+# Call Wind Power Function from R script
+
+```{r}
+
+source("../scripts/hw_2_wind_power.R")
+
+```
+
+
+# Test function with specific inputs
+
+```{r}
+
+# test normal inputs
+wind_power(rho = 1.225, r = 50, v = 10)
+
+# test negative inputs - these cause the function to cancel and issue an error
+#wind_power(rho = -1.225, r = 50, v = 10)
+#wind_power(rho = 1.225, r = -50, v = 10)
+#wind_power(rho = 1.225, r = 50, v = -10)
+
+# test high air density warning - this will run, but will issue a warning
+wind_power(rho = 2.5, r = 50, v = 10)
+
+```
+The error checking within the function appears to be working as intended, giving a warning for high air density and stopping the function for negative inputs. The function successfully calculates wind power for normal inputs.
+
+# Create example data
+
+```{r}
+# take 100 random samples for each variable
+wind_speeds <- rnorm(100, mean = 10, sd = 2)
+
+rho_values <- rnorm(100, mean = 1.225, sd = 0.1)
+
+blade_lengths <- rnorm(100, mean = 50, sd = 5)
+
+```
+
+# Test function with example data
+
+```{r}
+# run the function for the example data
+test_values <- wind_power(rho = rho_values, r = blade_lengths, v = wind_speeds)
+
+#examine the first few values
+head(test_values)
+
+```
+
+THe function returns 100 values for power output based on the example data inputs. The values appear to be reasonable, indicating that the function is working correctly.
+
+# Plot power vs wind speed using values calculated from example data
+
+```{r}
+
+# define air density and blade length, and generate power values for a range of wind speeds
+power_values <- wind_power(rho = 1.225, r = 50, v = wind_speeds)
+
+# create a data frame with wind speed and calculated power values for plotting
+power_speed_df <- data.frame(v = wind_speeds, p = power_values)
+
+# plot power vs wind speed
+library(tidyverse)
+
+ggplot(power_speed_df, aes(x = v, y = p)) +
+  geom_point() +
+  labs(title = "Power vs Wind Speed",
+       x = "Wind Speed (m/s)",
+       y = "Power (MW)") +
+  theme_bw()
+
+```
+
+The resulting plot shows the relationship between wind speed and power output for a wind turbine with a blade length of 50 meters and air density of 1.225 kg/m^3. As wind speed increases, power output also increases, following a cubic relationship. This plot is consistent with what we would expect to see, confirming that the wind power function is working correctly.
+
+# Plot power vs wind speed with variable blade lengths
+
+```{r}
+# generate power values for a range of wind speeds and different blade lengths
+power_values_2 <- wind_power(rho = 1.225, r = blade_lengths, v = wind_speeds)
+
+# create a data frame with wind speed and calculated power values for different blade lengths
+power_speed_df <- data.frame(v = wind_speeds, p = power_values_2, r = blade_lengths)
+
+# plot power vs wind speed for different blade lengths
+ggplot(power_speed_df, aes(x = v, y = p, color = r)) +
+  geom_point() +
+  labs(title = "Power vs Wind Speed for Different Blade Lengths",
+       x = "Wind Speed (m/s)",
+       y = "Power (MW)",
+       color = "Blade Length (m)") +
+  theme_bw()
+
+```
+
+When we allow for variable blade lengths, we see more variation in the data points, with longer blade lengths resulting in higher power output at the same wind speed. However, the cubic relationship between wind speed and power output remains. This is consistent with what we would expect, indicating that the function is working as intended.
+
